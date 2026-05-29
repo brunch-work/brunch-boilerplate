@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brunch Boilerplate
+
+A minimal [Next.js](https://nextjs.org) (App Router) starter — the bare shell of a Brunch project with the brand-specific pages, components, and styles stripped out. Use it as the starting point for a new site.
+
+## Stack
+
+- **Next.js 16** (App Router) + **React 19**
+- **GSAP** & **Motion** — animation
+- **next-view-transitions** — page transitions
+- **Zustand** — state management
+- **lottie-react** — Lottie animations
+- **DatoCMS** — headless CMS via a small GraphQL fetch helper
+- **Vercel Analytics**
+- Plain CSS (no preprocessor / framework)
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies (this repo uses [pnpm](https://pnpm.io)):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create your local env file from the example and fill in the values:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable                  | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `NEXT_PUBLIC_DATO_TOKEN`  | DatoCMS read-only API token                  |
+| `NEXT_PUBLIC_DATO_URL`    | DatoCMS GraphQL endpoint (Content Delivery)  |
 
-## Learn More
+Run the dev server:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000). Edit `src/app/page.jsx` to start — it hot-reloads on save.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+| Command       | Description                       |
+| ------------- | --------------------------------- |
+| `pnpm dev`    | Start the development server      |
+| `pnpm build`  | Production build                  |
+| `pnpm start`  | Serve the production build        |
+| `pnpm lint`   | Run ESLint                        |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/                 # App Router routes
+│   ├── layout.jsx       # Root layout + metadata (blank-slate, fill in per project)
+│   ├── page.jsx         # Home page
+│   ├── icon.png         # Favicon (auto-detected by Next)
+│   └── apple-icon.png   # Apple touch icon (auto-detected by Next)
+├── gql/
+│   └── queries.jsx      # GraphQL query strings
+├── styles/
+│   ├── global.css       # Imports the core stylesheets below
+│   └── core/            # Shared foundation
+│       ├── fonts.css        # @font-face declarations
+│       ├── shell.css        # Base / reset / layout shell
+│       ├── typography.css   # Type scale & text styles
+│       ├── animations.css   # Keyframes & animation utilities
+│       └── grid.css         # Grid system
+└── utils/
+    └── client.jsx       # DatoCMS GraphQL fetch helpers
+```
+
+The `@/*` path alias maps to `src/*` (see `jsconfig.json`), so imports look like `import { getPropData } from "@/utils/client"`.
+
+### Fonts & static assets
+
+Fonts (`public/fonts`), Lottie animations (`public/animations`), and images
+(`public/images`) carry over from the source project — swap them for your own.
+`src/styles/core/fonts.css` references the font files.
+
+## Metadata
+
+`src/app/layout.jsx` exports a fully-commented `metadata` object set up as a
+blank slate. Fill in the constants at the top (`APP_NAME`, `APP_DESCRIPTION`,
+`APP_BASE_URL`, `APP_OG_IMAGE`, …) and the Open Graph / Twitter tags populate
+automatically.
+
+## Fetching content (DatoCMS)
+
+Write queries in `src/gql/queries.jsx`, then fetch them in a Server Component:
+
+```jsx
+import { GET_INFORMATION } from "@/gql/queries";
+import { getPropData } from "@/utils/client";
+
+export default async function Page() {
+  const { information } = await getPropData(GET_INFORMATION);
+  return <main>{information.studioDescription}</main>;
+}
+```
+
+`client.jsx` exposes `getPropData` (server-side fetch), `fetchGraphQL` (the
+underlying request), and `SWRfetch` (for client-side SWR usage). All throw on
+GraphQL errors.
+
+## Deploy
+
+Deploy on [Vercel](https://vercel.com/new). Add the environment variables from
+`.env.example` in the project settings. See the
+[Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying)
+for other targets.
