@@ -15,6 +15,19 @@ A minimal [Next.js](https://nextjs.org) (App Router) starter — the bare shell 
 
 ## Getting Started
 
+Scaffold a new project from this boilerplate with [degit](https://github.com/Rich-Harris/degit) — it copies the files without any git history:
+
+```bash
+npx degit brunch-work/brunch-boilerplate my-new-app
+cd my-new-app
+```
+
+Initialize a fresh git repo:
+
+```bash
+git init && git add -A && git commit -m "Initial commit"
+```
+
 Install dependencies (this repo uses [pnpm](https://pnpm.io)):
 
 ```bash
